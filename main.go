@@ -55,8 +55,17 @@ func SplitPanes(sessionName string, rootDir string, hOrV string, percentage stri
 	runCmd(true, "tmux", "split-window", "-d", "-t", sessionName, splitFlag, "-p", percentage, "-c", rootDir)
 }
 
-func SendKeys(sessionName string, windowIndex string, command string) {
-	runCmd(true, "tmux", "send-keys", "-t", fmt.Sprintf("%s:%s", sessionName, windowIndex), command, "C-m")
+func SendKeys(sessionName string, windowIndex string, command ...string) {
+	x := fmt.Sprintf("%s:%s", sessionName, windowIndex)
+	y := []string{
+		"tmux",
+		"send-keys",
+		"-t",
+		x,
+		strings.Join(command, " "),
+		"C-m",
+	}
+	runCmd(true, y...)
 }
 
 func SelectPane(paneIndex string) {
@@ -68,7 +77,9 @@ func AttachSession(sessionName string) {
 }
 
 func ParseConfig(config string) {
-	fileBytes, _ := os.ReadFile("/home/dan/.gomux/" + config + ".conf")
+	homeDir, _ := os.UserHomeDir()
+
+	fileBytes, _ := os.ReadFile(homeDir + "/.gomux/" + config + ".conf")
 	fileString := string(fileBytes)
 	lines := strings.Split(fileString, "\n")
 
@@ -88,7 +99,7 @@ func ParseConfig(config string) {
 		}
 
 		if fragments[0] == SENDKEYS {
-			SendKeys(fragments[1], fragments[2], fragments[3])
+			SendKeys(fragments[1], fragments[2], fragments[3:]...)
 		}
 
 		if fragments[0] == ATTACH {
@@ -97,9 +108,28 @@ func ParseConfig(config string) {
 	}
 }
 
+func FileExists(filename string) bool {
+	homeDir, _ := os.UserHomeDir()
+
+	f := homeDir + "/.gomux/" + filename + ".conf"
+	_, err := os.Stat(f)
+	return !os.IsNotExist(err)
+}
+
 func main() {
 	var config string
 	flag.StringVar(&config, "c", "", "config file")
 	flag.Parse()
+
+	if len(config) == 0 {
+		fmt.Println("No config file specified")
+		os.Exit(1)
+	}
+
+	if !FileExists(config) {
+		fmt.Println("Config file does not exist")
+		os.Exit(1)
+	}
+
 	ParseConfig(config)
 }
