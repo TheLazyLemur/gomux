@@ -78,7 +78,7 @@ func AttachSession(sessionName string) {
 }
 
 func HasSession(sessionName string) bool {
-	err := runCmd(true, "tmux", "has-session", "-t", sessionName)
+	err := runCmd(false, "tmux", "has-session", "-t", sessionName)
 	return err == nil
 }
 
