@@ -19,7 +19,7 @@ const (
 	SPLITH = "h"
 )
 
-func runCmd(showOutput bool, c ...string) {
+func runCmd(showOutput bool, c ...string) error {
 	cmd := exec.Command(c[0], c[1:]...)
 
 	if showOutput {
@@ -29,12 +29,13 @@ func runCmd(showOutput bool, c ...string) {
 	}
 
 	if err := cmd.Start(); err != nil {
-		panic(err)
+		return err
 	}
 
 	if err := cmd.Wait(); err != nil {
-		panic(err)
+		return err
 	}
+	return nil
 }
 
 func NewSession(sessionName string, rootDir string) {
@@ -76,6 +77,11 @@ func AttachSession(sessionName string) {
 	runCmd(true, "tmux", "attach-session", "-t", sessionName)
 }
 
+func HasSession(sessionName string) bool {
+	err := runCmd(true, "tmux", "has-session", "-t", sessionName)
+	return err == nil
+}
+
 func ParseConfig(config string) {
 	homeDir, _ := os.UserHomeDir()
 
@@ -87,7 +93,13 @@ func ParseConfig(config string) {
 		fragments := strings.Split(line, " ")
 
 		if fragments[0] == NEWSESSION {
-			NewSession(fragments[1], fragments[2])
+			if HasSession(fragments[1]) {
+				fmt.Println("Attaching to existing session: ", fragments[1])
+				AttachSession(fragments[1])
+				return
+			} else {
+				NewSession(fragments[1], fragments[2])
+			}
 		}
 
 		if fragments[0] == SPLITPANE {
