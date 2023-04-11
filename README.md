@@ -25,11 +25,22 @@ attach-session session-name
 Here's an example configuration file:
 
 ```
-new-session my-session /path/to/my/project
-split-pane my-session /path/to/my/project h 50
-send-keys my-session 0 "echo 'Hello, world!'"
+new-session dbot /home/dan/Workspace/DBot
+split-pane dbot /home/dan/Workspace/DBot v 10
+select-pane 3
+split-pane dbot /home/dan/Workspace/DBot h 50
+
+select-pane 0
+send-keys dbot 0 nvim
+
 select-pane 1
-send-keys my-session 1 "ls -la"
+send-keys dbot 0 cat .env
+
+select-pane 2
+send-keys dbot 0 go run .
+
+select-pane 0
+attach-session dbot
 ```
 
 The above configuration file creates a new tmux session named "my-session" with a horizontal split pane that takes up 50% of the window. It then sends the commands "echo 'Hello, world!'" and "ls -la" to the first and second panes, respectively.
