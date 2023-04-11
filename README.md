@@ -26,8 +26,9 @@ Here's an example configuration file:
 
 ```
 new-session dbot /home/dan/Workspace/DBot
+
 split-pane dbot /home/dan/Workspace/DBot v 10
-select-pane 3
+select-pane 1
 split-pane dbot /home/dan/Workspace/DBot h 50
 
 select-pane 0
