@@ -5,34 +5,14 @@ import (
 	"strings"
 )
 
-type SplitCmd int
-
-const (
-	SPLITH SplitCmd = iota
-	SPLITV
-)
-
-func (enum SplitCmd) String() string {
-	enumToValue := map[SplitCmd]string{
-		0: "h",
-		1: "v",
-	}
-
-	e, ok := enumToValue[enum]
-	if !ok {
-		return ""
-	}
-	return e
-}
-
 func NewSession(sessionName string, rootDir string) {
 	runCmd(false, "tmux", "new-session", "-d", "-s", sessionName, "-c", rootDir)
 }
 
-func SplitPanes(sessionName string, rootDir string, hOrV string, percentage string) {
+func SplitPanes(sessionName string, rootDir string, splitCmd string, percentage string) {
 	splitFlag := ""
 
-	switch hOrV {
+	switch splitCmd {
 	case SPLITH.String():
 		splitFlag = "-h"
 	case SPLITV.String():

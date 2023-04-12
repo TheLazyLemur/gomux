@@ -7,40 +7,10 @@ import (
 	"strings"
 )
 
-type Cmd int
-
-const (
-	NEWSESSION Cmd = iota
-	SPLITPANE
-	SELECTPANE
-	SENDKEYS
-	ATTACH
-	SESSIONNAME
-	ROOTDIR
-)
-
-func (enum Cmd) String() string {
-	enumToValue := map[Cmd]string{
-		0: "new-session",
-		1: "split-pane",
-		2: "select-pane",
-		3: "send-keys",
-		4: "attach-session",
-		5: "session-name",
-		6: "root-dir",
-	}
-
-	e, ok := enumToValue[enum]
-	if !ok {
-		return ""
-	}
-	return e
-}
-
-func ParseConfig(config string) {
+func LoadConfig(name string) *Config {
 	homeDir, _ := os.UserHomeDir()
 
-	fileBytes, _ := os.ReadFile(homeDir + "/.gomux/" + config + ".conf")
+	fileBytes, _ := os.ReadFile(homeDir + "/.gomux/" + name + ".conf")
 	fileString := string(fileBytes)
 	lines := strings.Split(fileString, "\n")
 	nonEmptyLines := make([]string, 0)
@@ -53,58 +23,39 @@ func ParseConfig(config string) {
 	sessionName := strings.Split(nonEmptyLines[0], " ")[1]
 	if len(sessionName) == 0 {
 		fmt.Println("Session name is empty")
-		return
+		return nil
 	}
 
 	rootDir := strings.Split(nonEmptyLines[1], " ")[1]
 	if len(rootDir) == 0 {
 		fmt.Println("Root dir is empty")
-		return
+		return nil
 	}
 
-	for _, line := range nonEmptyLines {
-		fragments := strings.Split(line, " ")
-		cmd := fragments[0]
-
-		switch cmd {
-		case NEWSESSION.String():
-			if HasSession(sessionName) {
-				fmt.Println("Attaching to existing session: ", fragments[1])
-				AttachSession(sessionName)
-				return
-			} else {
-				NewSession(sessionName, rootDir)
-			}
-		case SPLITPANE.String():
-			SplitPanes(sessionName, rootDir, fragments[1], fragments[2])
-		case SELECTPANE.String():
-			SelectPane(fragments[1])
-		case SENDKEYS.String():
-			SendKeys(sessionName, fragments[1], fragments[2:]...)
-		case ATTACH.String():
-			AttachSession(sessionName)
-		case SESSIONNAME.String():
-		case ROOTDIR.String():
-		default:
-			fmt.Println("Unknown command: ", cmd)
-		}
+	cfg := &Config{
+		lines:       nonEmptyLines[2:],
+		sessionName: sessionName,
+		rootDir:     rootDir,
 	}
+
+	return cfg
 }
 
 func main() {
-	var config string
-	flag.StringVar(&config, "c", "", "config file")
+	var configName string
+	flag.StringVar(&configName, "c", "", "config file")
 	flag.Parse()
 
-	if len(config) == 0 {
+	if len(configName) == 0 {
 		fmt.Println("No config file specified")
 		os.Exit(1)
 	}
 
-	if !FileExists(config) {
+	if !FileExists(configName) {
 		fmt.Println("Config file does not exist")
 		os.Exit(1)
 	}
 
-	ParseConfig(config)
+	cfg := LoadConfig(configName)
+	cfg.ParseConfig()
 }
