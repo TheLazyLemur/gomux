@@ -7,16 +7,19 @@ import (
 	"strings"
 )
 
-const (
-	NEWSESSION = "new-session"
-	SPLITPANE  = "split-pane"
-	SELECTPANE = "select-pane"
-	SENDKEYS   = "send-keys"
-	ATTACH     = "attach-session"
+type Cmd int
 
-	SPLITV = "v"
-	SPLITH = "h"
+const (
+	NEWSESSION Cmd = iota
+	SPLITPANE
+	SELECTPANE
+	SENDKEYS
+	ATTACH
 )
+
+func (bp Cmd) String() string {
+	return []string{"new-session", "split-pane", "select-pane", "send-keys", "attach-session"}[bp]
+}
 
 func ParseConfig(config string) {
 	homeDir, _ := os.UserHomeDir()
@@ -42,7 +45,7 @@ func ParseConfig(config string) {
 		cmd := fragments[0]
 
 		switch cmd {
-		case NEWSESSION:
+		case NEWSESSION.String():
 			if HasSession(sessionName) {
 				fmt.Println("Attaching to existing session: ", fragments[1])
 				AttachSession(sessionName)
@@ -50,24 +53,16 @@ func ParseConfig(config string) {
 			} else {
 				NewSession(sessionName, rootDir)
 			}
-		case SPLITPANE:
+		case SPLITPANE.String():
 			SplitPanes(sessionName, rootDir, fragments[1], fragments[2])
-		case SELECTPANE:
+		case SELECTPANE.String():
 			SelectPane(fragments[1])
-		case SENDKEYS:
+		case SENDKEYS.String():
 			SendKeys(sessionName, fragments[1], fragments[2:]...)
-		case ATTACH:
+		case ATTACH.String():
 			AttachSession(sessionName)
 		}
 	}
-}
-
-func FileExists(filename string) bool {
-	homeDir, _ := os.UserHomeDir()
-
-	f := homeDir + "/.gomux/" + filename + ".conf"
-	_, err := os.Stat(f)
-	return !os.IsNotExist(err)
 }
 
 func main() {

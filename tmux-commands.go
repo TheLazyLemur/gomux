@@ -5,6 +5,17 @@ import (
 	"strings"
 )
 
+type SplitCmd int
+
+const (
+	SPLITH SplitCmd = iota
+	SPLITV
+)
+
+func (bp SplitCmd) String() string {
+	return []string{"h", "v"}[bp]
+}
+
 func NewSession(sessionName string, rootDir string) {
 	runCmd(false, "tmux", "new-session", "-d", "-s", sessionName, "-c", rootDir)
 }
@@ -12,11 +23,10 @@ func NewSession(sessionName string, rootDir string) {
 func SplitPanes(sessionName string, rootDir string, hOrV string, percentage string) {
 	splitFlag := ""
 
-	if hOrV == SPLITH {
+	switch hOrV {
+	case SPLITH.String():
 		splitFlag = "-h"
-	}
-
-	if hOrV == SPLITV {
+	case SPLITV.String():
 		splitFlag = "-v"
 	}
 
