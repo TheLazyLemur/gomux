@@ -25,33 +25,39 @@ func ParseConfig(config string) {
 	fileString := string(fileBytes)
 	lines := strings.Split(fileString, "\n")
 
+	sessionName := strings.Split(lines[0], " ")[1]
+	if len(sessionName) == 0 {
+		fmt.Println("Session name is empty")
+		return
+	}
+
+	rootDir := strings.Split(lines[1], " ")[1]
+	if len(rootDir) == 0 {
+		fmt.Println("Root dir is empty")
+		return
+	}
+
 	for _, line := range lines {
 		fragments := strings.Split(line, " ")
+		cmd := fragments[0]
 
-		if fragments[0] == NEWSESSION {
-			if HasSession(fragments[1]) {
+		switch cmd {
+		case NEWSESSION:
+			if HasSession(sessionName) {
 				fmt.Println("Attaching to existing session: ", fragments[1])
-				AttachSession(fragments[1])
+				AttachSession(sessionName)
 				return
 			} else {
-				NewSession(fragments[1], fragments[2])
+				NewSession(sessionName, rootDir)
 			}
-		}
-
-		if fragments[0] == SPLITPANE {
-			SplitPanes(fragments[1], fragments[2], fragments[3], fragments[4])
-		}
-
-		if fragments[0] == SELECTPANE {
+		case SPLITPANE:
+			SplitPanes(sessionName, rootDir, fragments[1], fragments[2])
+		case SELECTPANE:
 			SelectPane(fragments[1])
-		}
-
-		if fragments[0] == SENDKEYS {
-			SendKeys(fragments[1], fragments[2], fragments[3:]...)
-		}
-
-		if fragments[0] == ATTACH {
-			AttachSession(fragments[1])
+		case SENDKEYS:
+			SendKeys(sessionName, fragments[1], fragments[2:]...)
+		case ATTACH:
+			AttachSession(sessionName)
 		}
 	}
 }

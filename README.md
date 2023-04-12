@@ -12,36 +12,27 @@ To use Gomux, you need to have tmux installed on your system. Once you have tmux
 $ gomux -c config-file
 ```
 
-The configuration file is a plain text file that specifies the layout of your tmux session. The format of the file is as follows:
-
-```
-new-session session-name root-dir
-split-pane session-name root-dir h|v percentage
-select-pane pane-index
-send-keys session-name window-index command
-attach-session session-name
-```
-
+The configuration file is a plain text file that specifies the layout of your tmux session.
 Here's an example configuration file:
 
 ```
-new-session dbot /home/dan/Workspace/DBot
+session-name sentinel
+root-dir /home/dan/Workspace/VATIT/sentinel-service
 
-split-pane dbot /home/dan/Workspace/DBot v 10
+new-session
+
+split-pane v 10
 select-pane 1
-split-pane dbot /home/dan/Workspace/DBot h 50
+split-pane h 50
 
 select-pane 0
-send-keys dbot 0 nvim
-
-select-pane 1
-send-keys dbot 0 cat .env
+send-keys 0 nvim
 
 select-pane 2
-send-keys dbot 0 go run .
+send-keys 0 ./gradlew test
 
 select-pane 0
-attach-session dbot
+attach-session
 ```
 
 The above configuration file creates a new tmux session named "my-session" with a horizontal split pane that takes up 50% of the window. It then sends the commands "echo 'Hello, world!'" and "ls -la" to the first and second panes, respectively.
