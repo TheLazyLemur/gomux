@@ -12,8 +12,17 @@ const (
 	SPLITV
 )
 
-func (bp SplitCmd) String() string {
-	return []string{"h", "v"}[bp]
+func (enum SplitCmd) String() string {
+	enumToValue := map[SplitCmd]string{
+		0: "h",
+		1: "v",
+	}
+
+	e, ok := enumToValue[enum]
+	if !ok {
+		return ""
+	}
+	return e
 }
 
 func NewSession(sessionName string, rootDir string) {
