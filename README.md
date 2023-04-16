@@ -37,4 +37,6 @@ attach-session
 
 The above configuration file creates a new tmux session named "my-session" with a horizontal split pane that takes up 50% of the window. It then sends the commands "echo 'Hello, world!'" and "ls -la" to the first and second panes, respectively.
 
+[Example config](/media/demo.gif)
+
 You can find more information on the different commands in the source code.
