@@ -10,6 +10,7 @@ const (
 	ATTACH
 	SESSIONNAME
 	ROOTDIR
+	COMMENT
 )
 
 func (enum Cmd) String() string {
@@ -21,6 +22,7 @@ func (enum Cmd) String() string {
 		4: "attach-session",
 		5: "session-name",
 		6: "root-dir",
+		7: "#",
 	}
 
 	e, ok := enumToValue[enum]
