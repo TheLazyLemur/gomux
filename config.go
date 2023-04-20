@@ -36,6 +36,7 @@ func (cfg *Config) ParseConfig() {
 			AttachSession(cfg.sessionName)
 		case SESSIONNAME.String():
 		case ROOTDIR.String():
+		case COMMENT.String():
 		default:
 			fmt.Println("Unknown command: ", cmd)
 		}
